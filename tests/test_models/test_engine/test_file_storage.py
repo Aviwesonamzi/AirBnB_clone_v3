@@ -113,3 +113,10 @@ class TestFileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_close(self):
+        """Test that close calls reload method"""
+        storage = FileStorage()
+        with unittest.mock.patch.object(storage, 'reload', return_value=None) as mock_reload:
+            storage.close()
+            mock_reload.assert_called_once()

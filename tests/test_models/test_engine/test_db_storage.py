@@ -67,6 +67,36 @@ test_db_storage.py'])
             self.assertTrue(len(func[1].__doc__) >= 1,
                             "{:s} method needs a docstring".format(func[0]))
 
+     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_all_returns_dict(self):
+        """Test that all returns a dictionary"""
+        self.assertIs(type(models.storage.all()), dict)
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_all_no_class(self):
+        """Test that all returns all rows when no class is passed"""
+        pass
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_new(self):
+        """test that new adds an object to the database"""
+        pass
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_save(self):
+        """Test that save properly saves objects to the database"""
+        pass
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_close(self):
+        """Test that close removes the session"""
+        storage = DBStorage()
+        storage.reload()
+        storage.close()
+        with self.assertRaises(sqlalchemy.exc.OperationalError):
+            storage._DBStorage__session.execute('SELECT 1')
+
+
 
 class TestFileStorage(unittest.TestCase):
     """Test the FileStorage class"""
@@ -86,3 +116,6 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
+
+    if __name__ == "__main__":
+    unittest.main()
