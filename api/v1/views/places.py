@@ -5,6 +5,37 @@ from models.place import Place
 from models.user import User
 from api.v1.views import app_views
 
+@app_views.route('/places_search', methods=['POST'], strict_slashes=False)
+def places_search():
+    """Retrieves all Place objects depending on the JSON in the body of the request"""
+    if not request.get_json():
+        abort(400, description="Not a JSON")
+    data = request.get_json()
+
+    places = []
+    if not data or (not data.get('states') and not data.get('cities') and not data.get('amenities')):
+        places = storage.all(Place).values()
+    else:
+        if data.get('states'):
+            state_ids = data['states']
+            for state_id in state_ids:
+                state = storage.get(State, state_id)
+                if state:
+                    for city in state.cities:
+                        places.extend(city.places)
+        if data.get('cities'):
+            city_ids = data['cities']
+            for city_id in city_ids:
+                city = storage.get(City, city_id)
+                if city:
+                    places.extend(city.places)
+        if data.get('amenities'):
+            amenity_ids = data['amenities']
+            places = [place for place in places if all(storage.get(Amenity, amenity_id) in place.amenities for amenity_id in amenity_ids)]
+
+    places = [place.to_dict() for place in places]
+    return jsonify(places)
+
 @app_views.route('/cities/<city_id>/places', methods=['GET'], strict_slashes=False)
 def get_places(city_id):
     """Retrieve the list of all Place objects of a City"""
