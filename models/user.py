@@ -27,3 +27,22 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
+        if 'password' in kwargs:
+            self.password = kwargs['password']
+
+    @property
+    def password(self):
+        """Get the password"""
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        """Set the password, hashing it with MD5"""
+        self._password = md5(value.encode()).hexdigest()
+
+    def to_dict(self, include_password=False):
+        """Override the to_dict method to exclude the password by default"""
+        dict_representation = super().to_dict(include_password)
+        if 'password' in dict_representation and not include_password:
+            del dict_representation['password']
+        return dict_representation
